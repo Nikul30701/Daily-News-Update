@@ -1,3 +1,44 @@
 .idea
 .venv
 
+
+import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+# Make request
+api_key = "271efe7cb2fd49f598bf4570037c7803"
+url = f"https://newsapi.org/v2/everything?q=tesla&from=2024-10-30&sortBy=publishedAt&apiKey={api_key}&language=en"
+response = requests.get(url)
+content = response.json()
+
+# Access the article titles and descriptions
+body = ""
+for article in content["articles"][:20]:
+    title = article["title"] if article["title"] else "No Title"
+    description = article["description"] if article["description"] else "No Description"
+    url = article["url"] if article["url"] else "No URL"
+    body += f"{title}\n{description}\n{url}\n\n"
+
+body = body.encode("utf-8")
+
+# Send email
+def send_email(message):
+    sender = "youremail@example.com"
+    recipient = "recipient@example.com"
+    subject = "Daily News Update"
+
+    msg = MIMEMultipart()
+    msg["From"] = sender
+    msg["To"] = recipient
+    msg["Subject"] = subject
+
+    msg.attach(MIMEText(message.decode('utf-8'), "plain"))
+
+    with smtplib.SMTP("smtp.example.com", 587) as server:
+        server.starttls()
+        server.login("youremail@example.com", "yourpassword")
+        server.sendmail(sender, recipient,)
+
+send_email(message=body)

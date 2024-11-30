@@ -1,14 +1,24 @@
 import requests
+from emailing import send_email
 
 api_key = "271efe7cb2fd49f598bf4570037c7803"
-url = f"https://newsapi.org/v2/everything?q=tesla&from=2024-10-30&sortBy=publishedAt&apiKey={api_key}"
+url = f"https://newsapi.org/v2/everything?q=tesla&from=2024-10-30&sortBy=publishedAt&apiKey=271efe7cb2fd49f598bf4570037c7803&language=en"
 
 # Make request
-request = requests.get(url)
+response = requests.get(url)
 
 # Get a dictionary with data
-content = request.json()
+content = response.json()
 
-# access the article titles and descriptions
-for article in content["articles"]:
-    print(article["title"])
+# Access the article titles and descriptions
+body = ""
+for article in content["articles"][:20]:
+    if article["title"] is not None:
+        body = body + article["title"] + "\n" \
+        + article["description"] \
+        + "\n" + article["url"]+ 2*"\n"
+
+body = body.encode("utf-8")
+
+# Send email
+send_email(message=body)
